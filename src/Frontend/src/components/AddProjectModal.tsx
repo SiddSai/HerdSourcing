@@ -31,7 +31,10 @@ export const AddProjectModal = ({ open, onOpenChange, onSubmit }: AddProjectModa
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent
+        onInteractOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle className="text-2xl font-semibold">Add New Project</DialogTitle>
         </DialogHeader>

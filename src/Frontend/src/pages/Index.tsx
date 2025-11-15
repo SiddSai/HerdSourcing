@@ -2,9 +2,16 @@ import { useState } from "react";
 import { NavBar } from "@/components/NavBar";
 import { PastureHero } from "@/components/PastureHero";
 import { ProjectGrid } from "@/components/ProjectGrid";
-import type { Project } from "@/lib/types";
+import type { Project, ProjectStatus } from "@/lib/types";
 import { FloatingAddButton } from "@/components/FloatingAddButton";
 import { AddProjectModal } from "@/components/AddProjectModal";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
 
 const Index = () => {
 
@@ -25,6 +32,7 @@ const Index = () => {
   ]);
   const [modalOpen, setModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState<ProjectStatus | "all">("all");
 
   // Called when AddProjectModal submits
   const handleAddProject = (newProject: Omit<Project, "id">) => {
@@ -43,12 +51,16 @@ const Index = () => {
 
   const filteredProjects = projects.filter((project) => {
     const term = searchTerm.toLowerCase().trim();
-    if (!term) return true; // no search → show everything
 
-    const inTitle = project.title.toLowerCase().includes(term);
-    const inDescription = project.description.toLowerCase().includes(term);
+    const matchesSearch =
+      !term ||
+      project.title.toLowerCase().includes(term) ||
+      project.description.toLowerCase().includes(term);
 
-    return inTitle || inDescription;
+    const matchesStatus =
+      statusFilter === "all" || project.status === statusFilter;
+
+    return matchesSearch && matchesStatus;
   });
 
   const handleSearchChange = (value: string) => {
@@ -64,9 +76,33 @@ const Index = () => {
           searchValue={searchTerm}
           onSearchChange={handleSearchChange}
         />
+        {/* Status filter dropdown */}
+        <div className="flex justify-end mt-4">
+          <Select
+            value={statusFilter}
+            onValueChange={(value) =>
+              setStatusFilter(value as ProjectStatus | "all")
+            }
+          >
+            <SelectTrigger className="w-48">
+              <SelectValue placeholder="Filter by status" />
+            </SelectTrigger>
+
+            <SelectContent>
+              <SelectItem value="all">All statuses</SelectItem>
+              <SelectItem value="brainstorming">Brainstorming</SelectItem>
+              <SelectItem value="recruiting">Recruiting</SelectItem>
+              <SelectItem value="in_progress">In Progress</SelectItem>
+              <SelectItem value="completed">Completed</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
 
         {/* Pass current projects + delete handler into the grid */}
-        <ProjectGrid projects={filteredProjects} onDelete={handleDeleteProject} />
+        <ProjectGrid
+          projects={filteredProjects}
+          onDelete={handleDeleteProject}
+        />
       </main>
 
       {/* Floating + button to open the modal */}

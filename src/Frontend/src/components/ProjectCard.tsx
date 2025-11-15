@@ -11,6 +11,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+
 import type { ProjectStatus } from "@/lib/types";
 
 interface ProjectCardProps {
@@ -47,6 +56,7 @@ const statusConfig = {
 export const ProjectCard = ({ id, status, title, description, onDelete }: ProjectCardProps) => {
   const config = statusConfig[status];
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showDetailsDialog, setShowDetailsDialog] = useState(false);
 
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -60,7 +70,37 @@ export const ProjectCard = ({ id, status, title, description, onDelete }: Projec
 
   return (
     <>
-      <div className="group w-full max-w-sm rounded-2xl border border-border bg-card p-6 shadow-sm hover:shadow-md transition-shadow relative min-h-[220px]">
+      {/* Detail Dialog */}
+          <Dialog open={showDetailsDialog} onOpenChange={setShowDetailsDialog}>
+            <DialogContent
+              className="max-w-2xl"
+              onInteractOutside={(e) => e.preventDefault()}
+              onEscapeKeyDown={(e) => e.preventDefault()}
+            >
+              <DialogHeader>
+                <div
+                  className={cn(
+                    "inline-flex items-center rounded-full px-4 py-1.5 text-sm font-medium mb-4 w-fit",
+                    config.bgColor,
+                    config.textColor
+                  )}
+                >
+                  {config.label}
+                </div>
+                <DialogTitle className="text-2xl">{title}</DialogTitle>
+                <DialogDescription
+                  className="text-base pt-2 whitespace-pre-wrap break-all"
+                >
+                  {description}
+                </DialogDescription>
+              </DialogHeader>
+            </DialogContent>
+          </Dialog>
+      <div
+        onClick={() => setShowDetailsDialog(true)}
+        className="group w-full max-w-sm rounded-2xl border border-border bg-card p-6 shadow-sm hover:shadow-md transition-shadow relative h-[230px] flex flex-col"
+
+      >
         <button
           onClick={handleDeleteClick}
           className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
@@ -69,26 +109,32 @@ export const ProjectCard = ({ id, status, title, description, onDelete }: Projec
           <X className="h-5 w-5" />
         </button>
 
-        <div className={cn(
-          "inline-flex items-center rounded-full px-4 py-1.5 text-sm font-medium",
-          config.bgColor,
-          config.textColor
-        )}>
+        <div
+          className={cn(
+            "inline-flex items-center rounded-full px-4 py-1.5 text-sm font-medium w-fit",
+            config.bgColor,
+            config.textColor
+          )}
+        >
           {config.label}
         </div>
         
         {title && description ? (
-          <div className="mt-6 space-y-2">
-            <h4 className="text-lg font-semibold text-foreground">{title}</h4>
-            <p className="text-sm text-muted-foreground line-clamp-3">{description}</p>
-          </div>
-        ) : (
-          <div className="mt-6 space-y-3">
-            <div className="h-3 w-3/4 rounded-full bg-muted"></div>
-            <div className="h-3 w-full rounded-full bg-muted"></div>
-            <div className="h-3 w-2/3 rounded-full bg-muted"></div>
-          </div>
-        )}
+        <div className="mt-6 space-y-2">
+          <h4 className="text-lg font-semibold text-foreground line-clamp-2">
+            {title}
+          </h4>
+          <p className="text-sm text-muted-foreground line-clamp-3 whitespace-pre-line break-words">
+            {description}
+          </p>
+        </div>
+      ) : (
+        <div className="mt-6 space-y-3">
+          <div className="h-3 w-3/4 rounded-full bg-muted"></div>
+          <div className="h-3 w-full rounded-full bg-muted"></div>
+          <div className="h-3 w-2/3 rounded-full bg-muted"></div>
+        </div>
+      )}
       </div>
 
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
