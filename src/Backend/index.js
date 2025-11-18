@@ -1,15 +1,19 @@
-// Import Express and Cors
+// 1. Import libraries
 const express = require('express');
 const cors = require('cors');
 
-// Create Express Server Object
+// 2. Create the Express app
 const app = express();
 
-// Parse JSON requests
+// 3. Middleware (things that run before your routes)
+
+// This lets Express read JSON bodies like { "title": "hi" }
 app.use(express.json());
+
+// This allows your frontend (running on a different port) to call this backend
 app.use(cors());
 
-// Mutable Database (for testing)
+// 4. In-memory "database" (just a JS array for now)
 let projects = [
   {
     id: 'demo-1',
@@ -19,27 +23,29 @@ let projects = [
   },
 ];
 
-// Set up simple GET / routes
+// 5. Health check route: GET /
 app.get('/', (req, res) => {
-  res.send('Heardsourcing backend is running');
+  res.send('HerdSourcing backend is running');
 });
 
-// GET /api/projects route
+// 6. Get all projects: GET /api/projects
 app.get('/api/projects', (req, res) => {
   res.json(projects);
 });
 
-// POST /api/projects route
-app.get('/api/projects', (req, res) => {
-  // The request loooks for title, description, status
+// 7. Create a new project: POST /api/projects
+app.post('/api/projects', (req, res) => {
+  // Pull data from the JSON body
   const { title, description, status } = req.body;
 
-  // If not proper input return response error
+  // Basic validation
   if (!title || !description || !status) {
-    return res.status(400).json({ error: 'title, description, and status are required' });
+    return res
+      .status(400)
+      .json({ error: 'title, description, and status are required' });
   }
 
-  // Unique ID
+  // Make a unique-ish id using timestamp
   const id = 'proj-' + Date.now();
 
   const newProject = {
@@ -47,40 +53,37 @@ app.get('/api/projects', (req, res) => {
     title,
     description,
     status,
-  }
-  
-  // Add project to database
+  };
+
+  // Save it in our "database"
   projects.push(newProject);
+
+  // Return the created project with 201 (Created)
   res.status(201).json(newProject);
 });
 
-// Update projects with PATCH /api/projects/:id
-app.patch('/api/projects/:id', (req, res) => {
-
-  // Extract the id and body fields
-  const{ id } = req.params;
+// 8. Update a project: PUT /api/projects/:id
+app.put('/api/projects/:id', (req, res) => {
+  const { id } = req.params;
   const { title, description, status } = req.body;
 
-  // Find project in array
+  // Find the project in the array
   const project = projects.find((p) => p.id === id);
 
-  // Return error if not found
   if (!project) {
-    return res.status(404).json({ error: 'Project not found '});
+    return res.status(404).json({ error: 'Project not found' });
   }
-  
-  // Update provided fields
+
+  // Only update fields that are provided
   if (title !== undefined) project.title = title;
   if (description !== undefined) project.description = description;
   if (status !== undefined) project.status = status;
 
-  // Response
   res.json(project);
-  
 });
 
+// 9. Delete a project: DELETE /api/projects/:id
 app.delete('/api/projects/:id', (req, res) => {
-
   const { id } = req.params;
 
   const index = projects.findIndex((p) => p.id === id);
@@ -89,36 +92,14 @@ app.delete('/api/projects/:id', (req, res) => {
     return res.status(404).json({ error: 'Project not found' });
   }
 
+  // Remove that project from the array
   const deleted = projects.splice(index, 1)[0];
 
-  res.json(deleted);
+  res.json({ message: 'Project deleted', project: deleted });
 });
 
-const PORT = 5000;
-
-// Start + Test Server Running
+// 10. Start the server
+const PORT = 4000; // or whatever you want
 app.listen(PORT, () => {
-  console.log("Server running");
-});
-
-
-app.post("/api/projects", (req, res) => {
-  
-  const { title, description, status } = req.body;
-
-  // Create unique id
-  const id = "proj-" + Date.now();
-
-  // New Project
-  const newProject = {
-    id,
-    title,
-    description,
-    status,
-  };
-
-  projects.push(newProject);
-
-  res.status(201).json(newProject);
-
+  console.log(`HerdSourcing backend listening on http://localhost:${PORT}`);
 });
