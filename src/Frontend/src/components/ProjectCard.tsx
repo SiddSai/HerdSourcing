@@ -41,7 +41,7 @@ const statusConfig = {
     bgColor: "bg-status-recruiting",
     textColor: "text-status-recruiting-foreground",
   },
-  progress: {
+  in_progress: {
     label: "In Progress",
     bgColor: "bg-status-progress",
     textColor: "text-status-progress-foreground",

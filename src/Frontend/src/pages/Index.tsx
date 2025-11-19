@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { NavBar } from "@/components/NavBar";
 import { PastureHero } from "@/components/PastureHero";
 import { ProjectGrid } from "@/components/ProjectGrid";
@@ -33,6 +33,9 @@ const Index = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<ProjectStatus | "all">("all");
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Called when AddProjectModal submits
   const handleAddProject = (newProject: Omit<Project, "id">) => {
