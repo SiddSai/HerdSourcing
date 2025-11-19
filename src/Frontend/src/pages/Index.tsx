@@ -13,62 +13,151 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 
-const Index = () => {
+const API_URL = "http://localhost:4000/api/projects";
 
-  // Start with two demo project cards
-  const [projects, setProjects] = useState<Project[]>([
-    {
-      id: "demo-1",
-      title: "Aggie Matchmaker",
-      description: "Prototype matching students to labs with simple forms and tags.",
-      status: "brainstorming"
-    },
-    {
-      id: "demo-2",
-      title: "Expresso",
-      description: "Platform to contact and conduct coffee chats with experienced UC Davis students",
-      status: "completed"
-    }
-  ]);
+const Index = () => {
+  // Projects currently visibile on page
+  const [projects, setProjects] = useState<Project[]>([]);
+
+  // Modal open and close states
   const [modalOpen, setModalOpen] = useState(false);
+
+  // Search bar input
   const [searchTerm, setSearchTerm] = useState("");
+
+  // Project status filter
   const [statusFilter, setStatusFilter] = useState<ProjectStatus | "all">("all");
 
+  // Loading/error UI
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Called when AddProjectModal submits
-  const handleAddProject = (newProject: Omit<Project, "id">) => {
-    const project: Project = {
-      ...newProject,
-      id: Date.now().toString(), // temporary ID
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        // Loading + clear old errors
+        setLoading(true);
+        setError(null);
+
+        // Calls backend
+        const res = await fetch(API_URL);
+
+        if (!res.ok) {
+          throw new Error("Failed to refresh");
+        }
+
+        // Turn JSON body of projects to JS object
+        const data: Project[] = await res.json();
+
+        // Update projects state
+        setProjects(data);
+      } catch (err) {
+        console.error(err);
+        // Save a human-readable error message in state
+        setError((err as Error).message);
+      } finally {
+        // Set loading state to off
+        setLoading(false);
+      }
     };
-    // use functional update to avoid stale state issues
-    setProjects((prev) => [...prev, project]);
+
+    // Call function
+    fetchProjects();
+  }, []);
+
+  // Called when AddProjectModal submits
+  const handleAddProject = async (newProject: Omit<Project, "id">) => {
+    try {
+      // clear old errors
+
+      setError(null);
+
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newProject),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to add project");
+      }
+
+      const data = await res.json();
+      setProjects((prev) => [...prev, data]);
+    } catch (err) {
+      console.error(err);
+      setError((err as Error).message);
+    }
   };
 
-  // Called when a project card requests deletion
-  const handleDeleteProject = (id: string) => {
-    setProjects((prev) => prev.filter((project) => project.id !== id));
+  const handleDeleteProject = async (id: string) => {
+    try {
+      // Clear any old error
+      setError(null);
+
+      // Send delete request
+      const res = await fetch(`${API_URL}/${id}`, {
+        method: "DELETE",
+      });
+
+      // If deletion not successful
+      if (!res.ok) {
+        throw new Error("Failed to delete project");
+      }
+
+      // Update local projects state
+      setProjects((prev) => prev.filter((project) => project.id !== id));
+    } catch (err) {
+      console.error(err);
+      setError((err as Error).message);
+    }
   };
-
-  const filteredProjects = projects.filter((project) => {
-    const term = searchTerm.toLowerCase().trim();
-
-    const matchesSearch =
-      !term ||
-      project.title.toLowerCase().includes(term) ||
-      project.description.toLowerCase().includes(term);
-
-    const matchesStatus =
-      statusFilter === "all" || project.status === statusFilter;
-
-    return matchesSearch && matchesStatus;
-  });
 
   const handleSearchChange = (value: string) => {
     setSearchTerm(value);
   };
+
+  const handleUpdateStatus = async (id: string, newStatus: ProjectStatus) => {
+    try {
+      // Clear any old errors
+      setError(null);
+
+      // Send PUT request to backend
+      const res = await fetch(`${API_URL}/${id}`, {
+        method: "PUT", // we're updating, not creating
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to update project status");
+      }
+
+      // Backend returns the updated project (optional, but nice)
+      const updated = await res.json();
+
+      // Update local project stae
+      setProjects((prev) =>
+        prev.map((project) =>
+          project.id === id ? { ...project, status: updated.status } : project
+        )
+      );
+    } catch (err) {
+      console.error(err);
+      setError((err as Error).message);
+    }
+  };
+
+  // Filter projects by status and search term
+  const filteredProjects = projects.filter((project) => {
+    const statusMatch = statusFilter === "all" || project.status === statusFilter;
+    const searchMatch = project.title.toLowerCase().includes(searchTerm.toLowerCase());
+    return statusMatch && searchMatch;
+  });
 
   return (
     <div className="min-h-screen bg-background">
@@ -100,11 +189,23 @@ const Index = () => {
             </SelectContent>
           </Select>
         </div>
+        {loading && (
+          <p className="text-sm text-muted-foreground mb-4">
+            Loading projects…
+          </p>
+        )}
+
+        {error && (
+          <p className="text-sm text-red-500 mb-4">
+            Error: {error}
+          </p>
+        )}
 
         {/* Pass current projects + delete handler into the grid */}
         <ProjectGrid
           projects={filteredProjects}
           onDelete={handleDeleteProject}
+          onUpdateStatus={handleUpdateStatus}
         />
       </main>
 

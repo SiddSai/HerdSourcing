@@ -1,12 +1,13 @@
-import type { Project } from "@/lib/types";
 import { ProjectCard } from "./ProjectCard";
+import { Project, ProjectStatus } from "@/lib/types";
 
 interface ProjectGridProps {
   projects: Project[];
   onDelete: (id: string) => void;
+  onUpdateStatus: (id: string, newStatus: ProjectStatus) => void;
 }
 
-export const ProjectGrid = ({ projects, onDelete }: ProjectGridProps) => {
+export const ProjectGrid = ({ projects, onDelete, onUpdateStatus }: ProjectGridProps) => {
   return (
     <section className="w-full">
       <h3 className="mb-8 text-3xl font-semibold text-foreground">
@@ -17,11 +18,9 @@ export const ProjectGrid = ({ projects, onDelete }: ProjectGridProps) => {
         {projects.map((project) => (
           <ProjectCard
             key={project.id}
-            id={project.id}
-            status={project.status}
-            title={project.title}
-            description={project.description}
+            {...project}
             onDelete={onDelete}
+            onUpdateStatus={onUpdateStatus}
           />
         ))}
       </div>

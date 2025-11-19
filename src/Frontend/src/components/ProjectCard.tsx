@@ -20,14 +20,15 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 
-import type { ProjectStatus } from "@/lib/types";
+import { Project, ProjectStatus } from "@/lib/types";
 
 interface ProjectCardProps {
   id: string;
+  title: string;
+  description: string;
   status: ProjectStatus;
-  title?: string;
-  description?: string;
   onDelete: (id: string) => void;
+  onUpdateStatus: (id: string, newStatus: ProjectStatus) => void;
 }
 
 const statusConfig = {
@@ -53,7 +54,7 @@ const statusConfig = {
   },
 };
 
-export const ProjectCard = ({ id, status, title, description, onDelete }: ProjectCardProps) => {
+export const ProjectCard = ({ id, status, title, description, onDelete, onUpdateStatus }: ProjectCardProps) => {
   const config = statusConfig[status];
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showDetailsDialog, setShowDetailsDialog] = useState(false);
@@ -68,38 +69,40 @@ export const ProjectCard = ({ id, status, title, description, onDelete }: Projec
     setShowDeleteDialog(false);
   };
 
+  onUpdateStatus(id, "completed");
+
   return (
     <>
       {/* Detail Dialog */}
-          <Dialog open={showDetailsDialog} onOpenChange={setShowDetailsDialog}>
-            <DialogContent
-              className="max-w-2xl"
-              onInteractOutside={(e) => e.preventDefault()}
-              onEscapeKeyDown={(e) => e.preventDefault()}
+      <Dialog open={showDetailsDialog} onOpenChange={setShowDetailsDialog}>
+        <DialogContent
+          className="max-w-2xl"
+          onInteractOutside={(e) => e.preventDefault()}
+          onEscapeKeyDown={(e) => e.preventDefault()}
+        >
+          <DialogHeader>
+            <div
+              className={cn(
+                "inline-flex items-center rounded-full px-4 py-1.5 text-sm font-medium mb-4 w-fit",
+                config.bgColor,
+                config.textColor
+              )}
             >
-              <DialogHeader>
-                <div
-                  className={cn(
-                    "inline-flex items-center rounded-full px-4 py-1.5 text-sm font-medium mb-4 w-fit",
-                    config.bgColor,
-                    config.textColor
-                  )}
-                >
-                  {config.label}
-                </div>
-                <DialogTitle className="text-2xl">{title}</DialogTitle>
-                <DialogDescription
-                  className="text-base pt-2 whitespace-pre-wrap break-all"
-                >
-                  {description}
-                </DialogDescription>
-              </DialogHeader>
-            </DialogContent>
-          </Dialog>
+              {config.label}
+            </div>
+            <DialogTitle className="text-2xl">{title}</DialogTitle>
+            <DialogDescription
+              className="text-base pt-2 whitespace-pre-wrap break-all"
+            >
+              {description}
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
+
       <div
         onClick={() => setShowDetailsDialog(true)}
         className="group w-full max-w-sm rounded-2xl border border-border bg-card p-6 shadow-sm hover:shadow-md transition-shadow relative h-[230px] flex flex-col"
-
       >
         <button
           onClick={handleDeleteClick}
@@ -109,32 +112,52 @@ export const ProjectCard = ({ id, status, title, description, onDelete }: Projec
           <X className="h-5 w-5" />
         </button>
 
-        <div
-          className={cn(
-            "inline-flex items-center rounded-full px-4 py-1.5 text-sm font-medium w-fit",
-            config.bgColor,
-            config.textColor
-          )}
-        >
-          {config.label}
+        {/* 🆕 Top row: status pill + status dropdown */}
+        <div className="flex items-center justify-between gap-2">
+          {/* Colored status pill */}
+          <div
+            className={cn(
+              "inline-flex items-center rounded-full px-4 py-1.5 text-sm font-medium w-fit",
+              config.bgColor,
+              config.textColor
+            )}
+          >
+            {config.label}
+          </div>
+
+          {/* 🔽 Status dropdown */}
+          <select
+            className="border rounded-md px-2 py-1 text-xs bg-background"
+            value={status}
+            // prevent card click from opening the details dialog
+            onClick={(e) => e.stopPropagation()}
+            onChange={(e) =>
+              onUpdateStatus(id, e.target.value as ProjectStatus)
+            }
+          >
+            <option value="brainstorming">Brainstorming</option>
+            <option value="recruiting">Recruiting</option>
+            <option value="in_progress">In Progress</option>
+            <option value="completed">Completed</option>
+          </select>
         </div>
-        
+
         {title && description ? (
-        <div className="mt-6 space-y-2">
-          <h4 className="text-lg font-semibold text-foreground line-clamp-2">
-            {title}
-          </h4>
-          <p className="text-sm text-muted-foreground line-clamp-3 whitespace-pre-line break-words">
-            {description}
-          </p>
-        </div>
-      ) : (
-        <div className="mt-6 space-y-3">
-          <div className="h-3 w-3/4 rounded-full bg-muted"></div>
-          <div className="h-3 w-full rounded-full bg-muted"></div>
-          <div className="h-3 w-2/3 rounded-full bg-muted"></div>
-        </div>
-      )}
+          <div className="mt-6 space-y-2">
+            <h4 className="text-lg font-semibold text-foreground line-clamp-2">
+              {title}
+            </h4>
+            <p className="text-sm text-muted-foreground line-clamp-3 whitespace-pre-line break-words">
+              {description}
+            </p>
+          </div>
+        ) : (
+          <div className="mt-6 space-y-3">
+            <div className="h-3 w-3/4 rounded-full bg-muted"></div>
+            <div className="h-3 w-full rounded-full bg-muted"></div>
+            <div className="h-3 w-2/3 rounded-full bg-muted"></div>
+          </div>
+        )}
       </div>
 
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
@@ -147,10 +170,12 @@ export const ProjectCard = ({ id, status, title, description, onDelete }: Projec
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirmDelete}>Delete</AlertDialogAction>
+            <AlertDialogAction onClick={handleConfirmDelete}>
+              Delete
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </>
-  );
+);
 };
