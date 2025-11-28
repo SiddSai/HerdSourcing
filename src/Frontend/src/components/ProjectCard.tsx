@@ -54,7 +54,14 @@ const statusConfig = {
   },
 };
 
-export const ProjectCard = ({ id, status, title, description, onDelete, onUpdateStatus }: ProjectCardProps) => {
+export const ProjectCard = ({
+  id,
+  status,
+  title,
+  description,
+  onDelete,
+  onUpdateStatus,
+}: ProjectCardProps) => {
   const config = statusConfig[status];
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showDetailsDialog, setShowDetailsDialog] = useState(false);
@@ -69,7 +76,7 @@ export const ProjectCard = ({ id, status, title, description, onDelete, onUpdate
     setShowDeleteDialog(false);
   };
 
-  onUpdateStatus(id, "completed");
+  // Removed direct call to onUpdateStatus(id, "completed");
 
   return (
     <>
@@ -91,9 +98,7 @@ export const ProjectCard = ({ id, status, title, description, onDelete, onUpdate
               {config.label}
             </div>
             <DialogTitle className="text-2xl">{title}</DialogTitle>
-            <DialogDescription
-              className="text-base pt-2 whitespace-pre-wrap break-all"
-            >
+            <DialogDescription className="text-base pt-2 whitespace-pre-wrap break-all">
               {description}
             </DialogDescription>
           </DialogHeader>
@@ -112,7 +117,7 @@ export const ProjectCard = ({ id, status, title, description, onDelete, onUpdate
           <X className="h-5 w-5" />
         </button>
 
-        {/* 🆕 Top row: status pill + status dropdown */}
+        {/* Top row: status pill */}
         <div className="flex items-center justify-between gap-2">
           {/* Colored status pill */}
           <div
@@ -124,22 +129,6 @@ export const ProjectCard = ({ id, status, title, description, onDelete, onUpdate
           >
             {config.label}
           </div>
-
-          {/* 🔽 Status dropdown */}
-          <select
-            className="border rounded-md px-2 py-1 text-xs bg-background"
-            value={status}
-            // prevent card click from opening the details dialog
-            onClick={(e) => e.stopPropagation()}
-            onChange={(e) =>
-              onUpdateStatus(id, e.target.value as ProjectStatus)
-            }
-          >
-            <option value="brainstorming">Brainstorming</option>
-            <option value="recruiting">Recruiting</option>
-            <option value="in_progress">In Progress</option>
-            <option value="completed">Completed</option>
-          </select>
         </div>
 
         {title && description ? (
@@ -177,5 +166,5 @@ export const ProjectCard = ({ id, status, title, description, onDelete, onUpdate
         </AlertDialogContent>
       </AlertDialog>
     </>
-);
+  );
 };
