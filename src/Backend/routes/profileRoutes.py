@@ -5,7 +5,7 @@ from db.supabase import create_supabase_client
 router = APIRouter(prefix="/profiles", tags=["profiles"])
 supabase = create_supabase_client()
 
-def profile_exists(key: str = "email", value: str = None):
+def profile_exists(email: str) -> bool:
     resp = (
         supabase
         .from_("profiles")
@@ -13,14 +13,14 @@ def profile_exists(key: str = "email", value: str = None):
         .eq("email", email)
         .execute()
     )
-    return bool(resp.data)
+    return bool(getattr(resp, "data", None))
 
 @router.post("/create", status_code = status.HTTP_201_CREATED)
 def create_profile(profile: Profile):
     try: 
         profile_email = profile.email.lower()
 
-        if profile_exists("email", profile_email):
+        if profile_exists(profile_email):
             return {"message": "Profile already exists"}
 
         resp = supabase.from_("profiles")\
@@ -34,11 +34,17 @@ def create_profile(profile: Profile):
         
         print("DEBUG:", resp)
 
-        if resp.error or not resp.data:
-            print("Supabase error:", resp.error)
+        if getattr(resp, "error", None):
+            print(resp.error)
             return {"message": "Profile creation failed"}
+
+        if not getattr(resp, "data", None):
+            print("No data returned")
+            return {"message": "Profile creation failed"}
+        
         else:
-            return {"message" : "Profile created successfully"}
+            return {"message": "Profile created successfully"}
+        
     except Exception as e:
         print("Error:", e)
         return {"message": "Profile creation failed"}
