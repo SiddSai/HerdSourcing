@@ -1,7 +1,6 @@
-from . import create_app
+from fastapi import FastAPI
+from routes.health_check import router as health_router
 
+app = FastAPI()
 
-app = create_app()
-
-if __name__ == "__main__":
-    app.run(debug = True, host="0.0.0.0", port = 9001)
+app.include_router(health_router)

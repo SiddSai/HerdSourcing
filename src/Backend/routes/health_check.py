@@ -1,8 +1,8 @@
-from flask import Blueprint
+from fastapi import APIRouter
 
-health_bp = Blueprint("health_bp",  __name__)
+router = APIRouter()
 
-@health_bp.route("/check")
+@router.get('/health_check')
 def health_check():
-    return("Health has been checked")
+    return {"status": "Healthy"}
 
