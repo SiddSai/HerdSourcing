@@ -3,9 +3,10 @@ from typing import Optional
 from uuid import UUID
 from datetime import datetime
 
-class User(BaseModel):
+class Profile(BaseModel):
     id: UUID
     name: Optional[str] = None
+    email: Optional[str] = None
     major: Optional[str] = None
     year: Optional[str] = None
     bio: Optional[str] = None

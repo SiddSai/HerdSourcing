@@ -1,9 +1,12 @@
 from supabase import Client, create_client
-from env import api, url
+from dotenv import load_dotenv
+import os
 
-api_url: str = url
-key: str = api
+load_dotenv(dotenv_path="/Users/siddsai/Desktop/Programming/HerdSourcing/src/.env")
+
+api = os.getenv("api")
+url = os.getenv("url")
 
 def create_supabase_client() -> Client:
-    supabase: Client = create_client(api_url, key)
+    supabase: Client = create_client(url, api)
     return supabase
