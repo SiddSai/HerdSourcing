@@ -1,0 +1,4 @@
+@app.route("/check")
+def health_check():
+    return("Health has been checked")
+
