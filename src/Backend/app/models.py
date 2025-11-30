@@ -17,3 +17,17 @@ class Profile(BaseModel):
 
     class Config:
         from_attributes = True
+
+class Project(BaseModel):
+    id: UUID
+    owner_id: UUID
+    title: Optional[str] = None
+    description: Optional[str] = None
+    year: Optional[str] = None
+    status: Optional[str] = None
+    created: Optional[datetime] = None
+    updated: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
