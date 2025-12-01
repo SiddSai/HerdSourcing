@@ -50,7 +50,8 @@ def create_profile(profile: Profile):
     except Exception as e:
         print("Error:", e)
         return {"message": "Profile creation failed"}
-    
+
+# Get all profiles
 @router.get("/all")
 def get_all_profiles():
     try:

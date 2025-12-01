@@ -1,6 +1,8 @@
 from fastapi import APIRouter, HTTPException, status
 from app.models import Project
 from db.supabase import create_supabase_client
+from fastapi import Depends
+from app.deps.admin import require_admin
 
 router = APIRouter(prefix="/projects", tags=["projects"])
 supabase = create_supabase_client()
@@ -32,9 +34,8 @@ def create_project(project: Project):
 
         # 2) build payload (be consistent about casing!)
         payload = {
-            "title": project_title,         # or project.title if you want original case
+            "title": project_title,
             "description": project.description,
-            "year": project.year,
             "status": project.status,
         }
 
@@ -77,3 +78,53 @@ def get_all_projects():
     except Exception as e:
         print("Error:", e)
         return {"message": "Failed to retrieve projects"}
+    
+# Get specific project
+@router.get("/{project_id}")
+def get_project_by_id(project_id: str):
+    try:
+        resp = (
+            supabase
+            .from_("projects")
+            .select("*")
+            .eq("id", project_id)
+            .single()
+            .execute()
+        )
+
+        if getattr(resp, "error", None):
+            raise HTTPException(status_code=404, detail="Project not found")
+
+        return resp.data
+
+    except Exception as e:
+        print("Unexpected error:", e)
+        raise HTTPException(status_code=500, detail="Failed to retrieve project")
+    
+
+# Delete route
+@router.delete("/{project_id}", dependencies=[Depends(require_admin)])
+def delete_project(project_id: str):
+    try:
+        resp = (
+            supabase
+            .from_("projects")
+            .delete()
+            .eq("id", project_id)
+            .execute()
+        )
+
+        if getattr(resp, "error", None):
+            print("Supabase error:", resp.error)
+            raise HTTPException(status_code=500, detail="Failed to delete project")
+
+        if not getattr(resp, "data", None):
+            raise HTTPException(status_code=404, detail="Project not found")
+
+        return {"message": "Project deleted successfully"}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        print("Unexpected error:", e)
+        raise HTTPException(status_code=500, detail="Failed to delete project")

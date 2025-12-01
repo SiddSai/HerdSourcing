@@ -1,0 +1,135 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Soft pastel green HerdSourcing palette */
+    --background: 36 35% 92%; /* Warm beige #F3EDE3 */
+    --foreground: 30 5% 18%; /* Dark muted charcoal #2D2D2B */
+
+    --card: 40 33% 98%; /* Off-white #FAFAF7 */
+    --card-foreground: 30 5% 18%;
+
+    --popover: 40 33% 98%;
+    --popover-foreground: 30 5% 18%;
+
+    /* Muted pastel green as primary #A9C4A4 */
+    --primary: 110 20% 71%;
+    --primary-foreground: 30 5% 18%;
+
+    /* Soft beige secondary */
+    --secondary: 36 25% 88%;
+    --secondary-foreground: 30 5% 18%;
+
+    --muted: 36 25% 88%;
+    --muted-foreground: 30 5% 45%;
+
+    /* Minimal blue accent #B7C7DA */
+    --accent: 213 30% 79%;
+    --accent-foreground: 30 5% 18%;
+    
+    /* Minimal pink accent #F3C6C6 */
+    --pink-accent: 0 55% 86%;
+
+    --destructive: 0 65% 65%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 36 20% 85%;
+    --input: 36 20% 85%;
+    --ring: 110 20% 71%;
+
+    --radius: 1rem;
+
+    /* Soft gradient */
+    --gradient-subtle: linear-gradient(135deg, hsl(36 35% 92%) 0%, hsl(110 15% 88%) 100%);
+
+    /* Smooth transitions */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    --sidebar-background: 40 33% 98%;
+    --sidebar-foreground: 30 5% 18%;
+    --sidebar-primary: 110 20% 71%;
+    --sidebar-primary-foreground: 30 5% 18%;
+    --sidebar-accent: 36 25% 88%;
+    --sidebar-accent-foreground: 30 5% 18%;
+    --sidebar-border: 36 20% 85%;
+    --sidebar-ring: 110 20% 71%;
+  }
+
+  .dark {
+    --background: 110 15% 12%;
+    --foreground: 40 33% 98%;
+
+    --card: 110 12% 16%;
+    --card-foreground: 40 33% 98%;
+
+    --popover: 110 12% 16%;
+    --popover-foreground: 40 33% 98%;
+
+    --primary: 110 20% 71%;
+    --primary-foreground: 30 5% 18%;
+
+    --secondary: 110 10% 20%;
+    --secondary-foreground: 40 33% 98%;
+
+    --muted: 110 10% 20%;
+    --muted-foreground: 40 15% 65%;
+
+    --accent: 213 30% 79%;
+    --accent-foreground: 30 5% 18%;
+    
+    --pink-accent: 0 55% 86%;
+
+    --destructive: 0 65% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 110 10% 25%;
+    --input: 110 10% 25%;
+    --ring: 110 20% 71%;
+    
+    --gradient-subtle: linear-gradient(135deg, hsl(110 15% 12%) 0%, hsl(110 12% 16%) 100%);
+    
+    --sidebar-background: 110 15% 12%;
+    --sidebar-foreground: 40 33% 98%;
+    --sidebar-primary: 110 20% 71%;
+    --sidebar-primary-foreground: 30 5% 18%;
+    --sidebar-accent: 110 10% 20%;
+    --sidebar-accent-foreground: 40 33% 98%;
+    --sidebar-border: 110 10% 25%;
+    --sidebar-ring: 110 20% 71%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-weight: 400;
+  }
+}
+
+@layer utilities {
+  .fade-in {
+    animation: fadeIn 0.8s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(15px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
