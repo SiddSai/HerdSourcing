@@ -1,15 +1,32 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { supabase } from "@/lib/supabaseClient";
 
 interface LoginPageProps {
-  onLoginSuccess?: () => void;
+  onLoginSuccess?: () => void; // can keep for later if you want
 }
 
 const LoginPage = ({ onLoginSuccess }: LoginPageProps) => {
-  const handleGoogleLogin = () => {
-    console.log("Google login clicked");
-    onLoginSuccess?.();
+  const handleGoogleLogin = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: window.location.origin, // or + "/auth/callback" if we add a callback page later
+      },
+    });
+
+    if (error) {
+      console.error("Google login error:", error);
+      return;
+    }
+
+    // after redirect back, the app will reload, so this callback
+    // usually isn't needed, but you can keep it for non-OAuth flows
+    // onLoginSuccess?.();
   };
+
+  // JSX below – leave exactly as-is, just make sure the Button uses:
+  // <Button onClick={handleGoogleLogin} ...>
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-background via-background to-secondary/50 p-4">
