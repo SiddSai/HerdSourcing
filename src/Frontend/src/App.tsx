@@ -8,6 +8,7 @@ import ProfileSetup from "./components/ProfileSetup";
 import ProjectPasture from "./components/ProjectPasture";
 import MyPasture from "./components/MyPasture";
 import LoadingScreen from "./components/LoadingScreen";
+import { FloatingActions } from "./components/FloatingActions";
 
 const queryClient = new QueryClient();
 
@@ -48,6 +49,11 @@ const App = () => {
             )}
             {currentView === "myPasture" && (
               <MyPasture onBackToProjects={() => goTo("projectPasture")} />
+            )}
+            {/* Only show the floating New Project + DMs buttons on the main app views,
+                not during login/profile setup. */}
+            {(currentView === "projectPasture" || currentView === "myPasture") && (
+              <FloatingActions />
             )}
           </>
         )}
